@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
 using System.Threading;
+using System.Diagnostics;
+using System.IO;
 
 namespace accessgranted
 {
@@ -13,6 +15,7 @@ namespace accessgranted
         static SerialPort _serialPort;
         static Thread readThread;
         static string message;
+        static string code;
         static void Main(string[] args)
         {
             _serialPort = new SerialPort();
@@ -70,9 +73,29 @@ namespace accessgranted
                         }
                     }
                     while (ch != '!');
+                    for(int i=1;i<15;i++)
+                    {
+                        if (message[i] == ';')
+                            break;
+                        code += message[i];
+                    }
+                    executeCurl(code);
+                    code = "";
+                    message = "";
                 }
                 catch (TimeoutException) { }
+                
             }
+        }
+        public static void executeCurl(string code)
+        {
+            Process curl = new Process();
+            curl.StartInfo.FileName = "curl.exe";
+            curl.StartInfo.Arguments = "-X POST -d \"message="+code+"\" https://anzepau.000webhostapp.com/accessgranted_notify/trigger.php";
+            curl.Start();
+
+            code = "";
+
         }
     }
 }
