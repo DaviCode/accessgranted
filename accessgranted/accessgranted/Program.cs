@@ -41,7 +41,6 @@ namespace accessgranted
             _serialPort.Open();
             readThread = new Thread(Read);
             readThread.Start();
-            //curlThread = new Thread(executeCurl);
 
 
             
@@ -51,14 +50,22 @@ namespace accessgranted
         }
         public static void getCont()
         {
-            MySqlCommand cmd = new MySqlCommand("select max(cont) as max_cont from temp_auth;");
-            cmd.Connection = conn;
-            MySqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
+            try
             {
-                cont = Convert.ToInt32(reader["max_cont"]);
+                MySqlCommand cmd = new MySqlCommand("select max(cont) as max_cont from temp_auth;");
+                cmd.Connection = conn;
+                MySqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    cont = Convert.ToInt32(reader["max_cont"]);
+
+                }
+                reader.Close();
             }
-            reader.Close();
+            catch(Exception ex)
+            {
+                
+            }
         }
 
         public static string SetPortName(string defaultPortName)
@@ -206,20 +213,28 @@ namespace accessgranted
         }
         public static bool checkPermission()
         {
-            int count = 0; ;
-            MySqlCommand cmd = new MySqlCommand();
-            cmd.CommandText = "select count(*) C from autorizzazione JOIN gate JOIN utente on fk_idgate=id_gate AND fk_idutente=id_utente and id_utente='"+code+"' and id_gate="+id_gate+";";
-            cmd.Connection = conn;
-            MySqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
+            try
             {
-                count = Convert.ToInt32(reader["c"]);
+                int count = 0; ;
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.CommandText = "select count(*) C from autorizzazione JOIN gate JOIN utente on fk_idgate=id_gate AND fk_idutente=id_utente and id_utente='" + code + "' and id_gate=" + id_gate + ";";
+                cmd.Connection = conn;
+                MySqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    count = Convert.ToInt32(reader["c"]);
+                }
+                reader.Close();
+                if (count == 0)
+                    return false;
+                else
+                    return true;
             }
-            reader.Close();
-            if (count == 0)
-                return false;
-            else
-                return true;
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            return false;
             
         }
         
