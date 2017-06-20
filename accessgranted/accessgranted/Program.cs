@@ -20,13 +20,14 @@ namespace accessgranted
         static StreamWriter sw;
         static SerialPort _serialPort;
         static Thread readThread;
+        static Thread readKeyThread;
         //static Thread curlThread;
         static string message;
         static string code;
         static int id_gate;
         static int cont;
         static string access;
-        
+        static char key = ' ';
 
         static void Main(string[] args)
         {
@@ -40,9 +41,10 @@ namespace accessgranted
 
             _serialPort.Open();
             readThread = new Thread(Read);
+            readKeyThread = new Thread(readKey);
             readThread.Start();
-
-
+            readKeyThread.Start();
+            
             
             readThread.Join();
             _serialPort.Close();
@@ -85,12 +87,16 @@ namespace accessgranted
             return portName;
         }
 
+        public static void readKey()
+        {
+            key=Console.ReadKey().KeyChar;
+        }
         public static void Read()
         {
             
             char ch;
 
-            while (true)
+            while (key==' ')
             {
                 sw = new StreamWriter("log.txt");
                 try
