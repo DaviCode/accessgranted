@@ -54,17 +54,14 @@ namespace accessgranted
             {
                 MySqlCommand cmd = new MySqlCommand("select max(cont) as max_cont from temp_auth;");
                 cmd.Connection = conn;
-                MySqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    cont = Convert.ToInt32(reader["max_cont"]);
-
-                }
-                reader.Close();
+                cont = (int)cmd.ExecuteScalar();
             }
             catch(Exception ex)
             {
                 
+            }
+            finally
+            {
             }
         }
 
